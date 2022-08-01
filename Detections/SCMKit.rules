@@ -1,0 +1,1 @@
+alert tcp $HOME_NET any -> any $HTTP_PORTS (flow:established,to_server; content:"SCMKIT-5dc493ada400c79dd318abbe770dac7c"; http_header; fast_pattern:only; pcre:"/^User\x2dAgent\x3a\x20SCMKit/Hm"; metadata:service http; msg:"Known malicious user-agent string SCMKit tool"; id:5493400793187707; rev:1; )
