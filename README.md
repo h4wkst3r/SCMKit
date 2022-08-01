@@ -56,7 +56,7 @@ The below 3rd party libraries are used in this project.
 
 ### Pre-Compiled 
 
-* Use the pre-compiled binary in <a href="#">Releases</a>
+* Use the pre-compiled binary in Releases
 
 ### Building Yourself
 
