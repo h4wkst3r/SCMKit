@@ -13,7 +13,7 @@ namespace SCMKit
         private static string system = "";
         private static string url = "";
         private static string option = "";
-        private static List<string> approvedModules = new List<string> { "listrepo", "repolist", "reposearch", "codesearch", "snippetlist", "gistlist", "orglist", "searchrepo", "searchcode", "searchfile", "listsnippet", "listgist", "listorg", "privs", "addadmin", "removeadmin", "createpat", "removepat", "listpat", "adminstats", "listrunner", "runnerlist", "createsshkey", "removesshkey", "listsshkey" };
+        private static List<string> approvedModules = new List<string> { "listrepo", "repolist", "reposearch", "codesearch", "snippetlist", "gistlist", "orglist", "searchrepo", "searchcode", "searchfile", "listsnippet", "listgist", "listorg", "privs", "addadmin", "removeadmin", "createpat", "removepat", "listpat", "adminstats", "listrunner", "runnerlist", "createsshkey", "removesshkey", "listsshkey", "protection" };
 
 
         static async Task Main(string[] args)
@@ -200,6 +200,9 @@ namespace SCMKit
                             break;
                         case "removesshkey":
                             await modules.github.RemoveSSHKey.execute(credential, url, option, system);
+                            break;
+                        case "protection":
+                            await modules.github.BranchProtection.execute(credential, url, option, system);
                             break;
                         default:
                             Console.WriteLine("");

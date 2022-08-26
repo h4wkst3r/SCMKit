@@ -92,6 +92,7 @@
     <Compile Include="modules\bitbucket\RepoSearch.cs" />
     <Compile Include="modules\github\AddAdmin.cs" />
     <Compile Include="modules\github\AdminStats.cs" />
+    <Compile Include="modules\github\BranchProtection.cs" />
     <Compile Include="modules\github\CreateSSHKey.cs" />
     <Compile Include="modules\github\FileSearch.cs" />
     <Compile Include="modules\github\GistList.cs" />
