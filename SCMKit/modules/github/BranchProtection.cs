@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Octokit;
+using SCMKit.library;
 
 namespace SCMKit.modules.github
 {
@@ -20,7 +23,7 @@ namespace SCMKit.modules.github
                 GitHubClient client = library.GitHubUtils.AuthToGitHub(credential, url);
 
                 // create table header
-                string tableHeader = string.Format("{0,-30} | {1,-30} | {2,-40}", "Repo", "Branch", "Protection");
+                string tableHeader = string.Format("{0,-25} | {1,-25} | {2,-50}", "Repo", "Branch", "Protection");
                 Console.WriteLine(tableHeader);
                 Console.WriteLine(new String('-', tableHeader.Length));
 
@@ -54,6 +57,7 @@ namespace SCMKit.modules.github
                             var branches = branchesClient.GetAll(repo.Id);
                             foreach (Branch branch in branches.Result)
                             {
+                                var bLen = branch.Name.Length;
                                 string protectionSettings = $"- Protected: {branch.Protected.ToString(),-58}";
                                 if (branch.Protected)
                                 {
@@ -73,16 +77,32 @@ namespace SCMKit.modules.github
                                         // List branch protection rules in the order they are displayed in the GitHub web console
                                         if (branchProtection.RequiredPullRequestReviews != null)
                                         {
+                                            protectionSettings +=
+                                                $"\n{" + ",58}Require a pull request before merging: True";
                                             if (branchProtection.RequiredPullRequestReviews.RequiredApprovingReviewCount !=
                                                 0)
                                                 protectionSettings +=
-                                                    $"\n{" + ",58}Approvals required before merge: {branchProtection.RequiredPullRequestReviews.RequiredApprovingReviewCount}";
+                                                    $"\n{" + ",58}  Approvals required before merge: {branchProtection.RequiredPullRequestReviews.RequiredApprovingReviewCount}";
                                             if (branchProtection.RequiredPullRequestReviews.RequireCodeOwnerReviews)
                                                 protectionSettings +=
-                                                    $"\n{" + ",58}Owner review required before merge: {branchProtection.RequiredPullRequestReviews.RequireCodeOwnerReviews}";
+                                                    $"\n{" + ",58}  Owner review required before merge: {branchProtection.RequiredPullRequestReviews.RequireCodeOwnerReviews}";
                                             // Add "Allow specified actors to bypass required pull requests" setting when added to Octokit (not supported as of 8/30/22, but supported by GitHub API bypass_pull_request_allowances property)
+                                            string bypassPullRequestAllowancesResponse =
+                                                await GitHubUtils.callGitHubApiGet(credential, repo.Url, $"/branches/{branch.Name}/protection/required_pull_request_reviews", "");
+                                            if (bypassPullRequestAllowancesResponse.Contains(
+                                                    "bypass_pull_request_allowances"))
+                                            {
+                                                protectionSettings +=
+                                                    $"\n{" + ",58}  Users who may bypass pull requests:";
+                                                JToken bypassPullRequestAllowanceUsers = JObject.Parse(bypassPullRequestAllowancesResponse)["bypass_pull_request_allowances"];
+                                                foreach (var child in bypassPullRequestAllowanceUsers.Children().Children().Children())
+                                                {
+                                                    JToken user = JObject.Parse(child.ToString());
+                                                    protectionSettings += $"\n{" + ",58}    {user["login"]}";
+                                                }
+                                            }
                                         }
-                                        
+
                                         if (branchProtection.RequiredStatusChecks != null)
                                         {
                                             protectionSettings +=
@@ -152,7 +172,7 @@ namespace SCMKit.modules.github
                                     }
                                 }
 
-                                Console.WriteLine("{0,-30} | {1,-30} | {2,-40}", repo.Name, branch.Name, protectionSettings);
+                                Console.WriteLine("{0,-25} | {1,-25} | {2,-50}", repo.Name, branch.Name, protectionSettings);
                             }
                         }
                     }
@@ -190,16 +210,32 @@ namespace SCMKit.modules.github
                                     // List branch protection rules in the order they are displayed in the GitHub web console
                                     if (branchProtection.RequiredPullRequestReviews != null)
                                     {
+                                        protectionSettings +=
+                                            $"\n{" + ",58}Require a pull request before merging: True";
                                         if (branchProtection.RequiredPullRequestReviews.RequiredApprovingReviewCount !=
                                             0)
                                             protectionSettings +=
-                                                $"\n{" + ",58}Approvals required before merge: {branchProtection.RequiredPullRequestReviews.RequiredApprovingReviewCount}";
+                                                $"\n{" + ",58}  Approvals required before merge: {branchProtection.RequiredPullRequestReviews.RequiredApprovingReviewCount}";
                                         if (branchProtection.RequiredPullRequestReviews.RequireCodeOwnerReviews)
                                             protectionSettings +=
-                                                $"\n{" + ",58}Owner review required before merge: {branchProtection.RequiredPullRequestReviews.RequireCodeOwnerReviews}";
+                                                $"\n{" + ",58}  Owner review required before merge: {branchProtection.RequiredPullRequestReviews.RequireCodeOwnerReviews}";
                                         // Add "Allow specified actors to bypass required pull requests" setting when added to Octokit (not supported as of 8/30/22, but supported by GitHub API bypass_pull_request_allowances property)
+                                        string bypassPullRequestAllowancesResponse =
+                                            await GitHubUtils.callGitHubApiGet(credential, repo.Url, $"/branches/{branch.Name}/protection/required_pull_request_reviews", "");
+                                        if (bypassPullRequestAllowancesResponse.Contains(
+                                                "bypass_pull_request_allowances"))
+                                        {
+                                            protectionSettings +=
+                                                $"\n{" + ",58}  Users who may bypass pull requests:";
+                                            JToken bypassPullRequestAllowanceUsers = JObject.Parse(bypassPullRequestAllowancesResponse)["bypass_pull_request_allowances"];
+                                            foreach (var child in bypassPullRequestAllowanceUsers.Children().Children().Children())
+                                            {
+                                                JToken user = JObject.Parse(child.ToString());
+                                                protectionSettings += $"\n{" + ",58}    {user["login"]}";
+                                            }
+                                        }
                                     }
-                                    
+
                                     if (branchProtection.RequiredStatusChecks != null)
                                     {
                                         protectionSettings +=
@@ -269,7 +305,7 @@ namespace SCMKit.modules.github
                                 }
                             }
 
-                            Console.WriteLine("{0,-30} | {1,-30} | {2,-40}", repo.Name, branch.Name, protectionSettings);
+                            Console.WriteLine("{0,-25} | {1,-25} | {2,-50}", repo.Name, branch.Name, protectionSettings);
                         }
                     }
                 }
