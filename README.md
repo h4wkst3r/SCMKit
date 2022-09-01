@@ -38,6 +38,7 @@
   - [List SSH Keys](#List-ssh-keys)
   - [Remove SSH Key](#Remove-ssh-key)
   - [List Admin Stats](#list-admin-stats)
+  - [List Branch Protection](#list-branch-protection)
 - [Detection](#detection)
 - [References](#references)
 
