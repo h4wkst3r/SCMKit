@@ -4,7 +4,7 @@
 **S**ource **C**ode **M**anagement Attack Tool**kit** - SCMKit is a toolkit that can be used to attack SCM systems. SCMKit allows the user to specify the SCM system and attack module to use, along with specifying valid credentials (username/password or API key) to the respective SCM system. Currently, the SCM systems that SCMKit supports are GitHub Enterprise, GitLab Enterprise and Bitbucket Server. The attack modules supported include reconnaissance, privilege escalation and persistence. SCMKit was built in a modular approach, so that new modules and SCM systems can be added in the future by the information security community.
 
 ## Release
-* Version 1.0 of SCMKit can be found in Releases
+* Version 1.1 of SCMKit can be found in Releases
 
 ## Table of Contents
 
@@ -38,6 +38,7 @@
   - [List SSH Keys](#List-ssh-keys)
   - [Remove SSH Key](#Remove-ssh-key)
   - [List Admin Stats](#list-admin-stats)
+  - [List Branch Protection](#list-branch-protection)
 - [Detection](#detection)
 - [References](#references)
 
@@ -107,6 +108,7 @@ Take the below steps to setup Visual Studio in order to compile the project your
 * <b>listsshkey:</b> list SSH keys for current user
 * <b>removesshkey:</b> remove SSH key for current user
 * <b>adminstats:</b> get admin stats (users, repos, orgs, gists)
+* <b>protection:</b> get branch protection settings
 
 
 
@@ -124,6 +126,7 @@ Reconnaissance |`listrunner` |  No |  | X |
 Reconnaissance |`listgist` |  No | X |  | 
 Reconnaissance |`listorg` |  No | X |  | 
 Reconnaissance |`privs` |  No | X | X | 
+Reconnaissance |`protection` |  No | X |  | 
 Persistence | `listsshkey` |  No | X | X | X
 Persistence | `removesshkey` |  No | X | X | X
 Persistence | `createsshkey` |  No | X | X | X
@@ -1037,6 +1040,50 @@ Timestamp:      1/14/2022 9:45:50 PM
 -----------------------------------
                0 |                1
                
+```
+
+### List Branch Protection
+
+#### Use Case
+
+> *List branch protections in GitHub Enterprise*
+
+#### Syntax
+
+Provide the `protection` module, along with any relevant authentication information and URL. Optionally, supply a string in the options parameter to return matching results contained in repo names
+
+##### GitHub Enterprise
+
+`SCMKit.exe -s github -m protection -c userName:password -u https://github.something.local`
+
+`SCMKit.exe -s github -m protection -c apikey -u https://github.something.local`
+
+`SCMKit.exe -s github -m protection -c apikey -u https://github.something.local -o reponame`
+
+#### Example Output
+
+```
+C:\>.\SCMKit.exe -u http://github.hogwarts.local -s github -c apiToken -m protection -o public-r
+
+==================================================
+Module:         protection
+System:         github
+Auth Type:      API Key
+Options:        public-r
+Target URL:     http://github.hogwarts.local
+
+Timestamp:      8/29/2022 2:02:42 PM
+==================================================
+
+                     Repo |                    Branch |                                         Protection
+----------------------------------------------------------------------------------------------------------
+              public-repo |                       dev | Protected: True
+                                                        Status checks must pass before merge:
+                                                          Branch must be up-to-date before merge: True
+                                                        Owner review required before merge: True
+                                                        Approvals required before merge: 2
+                                                        Protections apply to repo admins: True
+              public-repo |                      main | Protected: False
 ```
 
 ## Detection
